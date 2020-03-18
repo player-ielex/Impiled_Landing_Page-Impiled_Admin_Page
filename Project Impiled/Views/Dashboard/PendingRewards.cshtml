@@ -1,0 +1,101 @@
+﻿
+@{
+    ViewBag.Title = "PendingRewards";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    if (Session["adminId"] == null)
+    {
+        Response.Redirect("~/Admin/Login");
+    }
+}
+
+
+
+<div class="container-fluid mt-5">
+    <div class="row ">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title text-center"><b>Pending</b></h1>
+                    <p class="card-text text-center">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat repudiandae cum veritatis unde modi, itaque voluptatem id quae e</p>
+
+                    <div class="table-responsive py-4 text-center">
+                        <table class="table table-flush" id="pending-basic" style="width: 100%">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>FullName</th>
+                                    <th>Rewards Name</th>
+                                    <th>Rewards Task</th>
+                                    <th>Progress</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@section tab {
+    <script>  
+
+        var database = firebase.database();
+        var transaction = database.ref("transaction/");
+        var rewards = database.ref("reward/");
+        var student = database.ref("students/");
+
+        function Read() {
+            var table = $('#pending-basic').DataTable();
+            transaction.on("child_added", snap => {
+                student.child(snap.child("student_id").val()).on("value", snapper => {
+                    rewards.child(snap.child("rewards_id").val()).on("value", rew => {
+                       
+                         if (snapper.exists() && snap.child("status").val() == "pending") {
+                             var fullname = snapper.child("student_fname").val() + " " + snapper.child("student_mname").val() + " " + snapper.child("student_lname").val();
+                             if (snap.child("progress").val() == "50") {
+                                 var delandup = '<button class="btn btn-success" onclick="CreateandDelete(' + "'" + snap.key + "' , '" + "Accepted" + "'" + ')"> Accept </button> <button class="btn btn-danger" onclick="CreateandDelete(' + "'" + snap.key + "' , '" + "Rejected" + "'" + ')"> Reject </button>';
+                             } else {
+                                 var delandup = '<p> Must 50% progress </p>';
+                             }
+                             
+                            var dataSet = [fullname, rew.child("rewards_name").val(), '<div style="width: 250px; height: 50px; overflow-x:scroll">' + rew.child("rewards_task").val() + '</div>', snap.child("progress").val(), snap.child("status").val(), delandup];
+                            table.rows.add([dataSet]).draw();
+                            hidePreloader();
+                        }
+                        hidePreloader(); 
+                        
+                    });
+                }); 
+            });
+        }
+
+        function CreateandDelete(id, status) {
+            var transloc = transaction.child(id);
+            var stat = { status: status, progress: "100" };
+
+            if (transloc.update(stat)) {
+                Swal.fire({
+                    title: 'Updated!',
+                    text: "Your file has been Updated.",
+                    icon: 'success',
+                    showConfirmButton: false,
+                    timer: 1000,
+                    onClose: () => {
+                        window.location.reload();
+                    },
+
+                });
+            }
+
+            console.log( status);       
+        }
+
+    </script>
+}

@@ -1,0 +1,46 @@
+﻿body {
+    background-color: white !important;
+}
+
+h2 {
+    margin-top: 100px !important;
+    color: #403866;
+    font-size: 30px;
+    font-family: Roboto Black;
+    text-transform: uppercase;
+}
+
+.input100 {
+    padding: 0 20px 0 38px;
+    height: 62px;
+    width: 100%;
+    display: block;
+    color: #403866;
+    background: #E6E6E6;
+    line-height: 1.2;
+    border: none;
+    font-family: Roboto Black;
+    margin-bottom: 10px;
+}
+
+.form-btn {
+    font-family: Ubuntu-Bold;
+    font-size: 16px;
+    color: #fff;
+    line-height: 1.2;
+    text-transform: uppercase;
+    margin-top: 10px;
+    font-family: Roboto Black;
+    padding: 0 20px;
+    width: 100%;
+    height: 62px;
+    border: none;
+    background-color: #827ffe;
+}
+
+
+.error {
+    color: red;
+    text-align: center;
+    margin: 10px 0;
+}

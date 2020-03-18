@@ -1,0 +1,14 @@
+
+
+nav {
+    margin-top: 0px !important;
+    padding-top: 10px;
+}
+
+.container-fluid {
+    background: url("../img/pink.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 1050px;
+    height:700px;
+}

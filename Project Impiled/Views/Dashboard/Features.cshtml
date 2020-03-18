@@ -1,0 +1,435 @@
+﻿
+@{
+    ViewBag.Title = "Features";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h1 class="text-center mt-3">Three Main Features</h1>
+
+<div class="container mt-5">
+    <div class="row text-center">
+
+        <div class="col-4">
+            <div class="card card-inverse">
+                <!-- Card header -->
+                <div class="card-header">
+                    <!-- Title -->
+                    <h5 class="h3 mb-0 text-center" id="tit1"><b></b></h5>
+                </div>
+                <!-- Card image -->
+                <img class="card-img-top" id="img1"/>
+                <!-- List group -->
+                <!-- Card body -->
+                <div class="card-body">
+                    <p class="card-text mb-4" id="des1"></p>
+                    <center>
+                        <a href="#" id="update1" data-toggle="modal" data-target="#exampleModal" class="btn btn-warning">Update</a>
+                    </center>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-4">
+            <div class="card card-inverse">
+                <!-- Card header -->
+                <div class="card-header">
+                    <!-- Title -->
+                    <h5 class="h3 mb-0 text-center" id="tit2"><b></b></h5>
+                </div>
+                <!-- Card image code is <img class="card-img-top"> -->
+                <img class="card-img-top" id="img2"  />
+                <!-- List group -->
+                <!-- Card body -->
+                <div class="card-body">
+                    <p class="card-text mb-4" id="des2"></p>
+                    <center>
+                        <a href="#" id="update2" data-toggle="modal" data-target="#exampleModal" class="btn btn-warning">Update</a>
+                    </center>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-4">
+            <div class="card card-inverse">
+                <!-- Card header -->
+                <div class="card-header">
+                    <!-- Title -->
+                    <h5 class="h3 mb-0 text-center" id="tit3"><b></b></h5>
+                </div>
+                <!-- Card image -->
+                <img class="card-img-top" id="img3" />
+                <!-- List group -->
+                <!-- Card body -->
+                <div class="card-body">
+                    <p class="card-text mb-4" id="des3"></p>
+                    <center>
+                        <a href="#" id="update3" data-toggle="modal" data-target="#exampleModal" class="btn btn-warning">Update</a>
+                    </center>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <h1 class='col-12 modal-title text-center' style="font-size: 35px">
+                    Update Features
+                </h1>
+            </div>
+            <div class="modal-body col-12 text-center">
+                <form>
+                    <div class="avatar-upload">
+                        <div class="avatar-edit">
+                            <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" required />
+                            <label for="imageUpload"></label>
+                        </div>
+                        <div class="avatar-preview">
+                            <div id="imagePreview" style="background-image: url(http://i.pravatar.cc/500?img=7);">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Type Features Title" id="ftitle" required />
+                    </div>
+
+                    <div class="form-group">
+                        <textarea class="form-control" id="fdescrip" placeholder="Type Features Description" rows="4"></textarea>
+                    </div>
+                </form>
+                <button type="button" id="updat" class="btn btn-warning text-center" tabindex="1" data-dismiss="modal">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section tab {
+    <script>
+
+        var database = firebase.database();
+        var feat = database.ref("features");
+      
+
+        var storage = firebase.storage();
+        var storageRef = firebase.storage().ref();
+        var firesup = false;
+        var selectedfile;
+
+        //Buttons
+        var update1 = document.getElementById("update1");
+        var update2 = document.getElementById("update2");
+        var update3 = document.getElementById("update3");
+
+        //Title
+        var ti1 = document.getElementById("tit1");
+        var ti2 = document.getElementById("tit2");
+        var ti3 = document.getElementById("tit3");
+
+        //images
+        var img1 = document.getElementById("img1");
+        var img2 = document.getElementById("img2");
+        var img3 = document.getElementById("img3");
+
+        //Description
+        var des1 = document.getElementById("des1");
+        var des2 = document.getElementById("des2");
+        var des3 = document.getElementById("des3");
+
+        //In Modal
+        var descrip = document.getElementById("fdescrip");
+        var title = document.getElementById("ftitle");
+
+   
+        $(document).ready(function(){
+            function alignModal(){
+                var modalDialog = $(this).find(".modal-dialog");
+                /* Applying the top margin on modal dialog to align it vertically center */
+                modalDialog.css("margin-top", Math.max(0, ($(window).height() - modalDialog.height()) / 2));
+            }
+            // Align modal when it is displayed
+            $(".modal").on("shown.bs.modal", alignModal);
+    
+            // Align modal when user resize the window
+            $(window).on("resize", function(){
+                $(".modal:visible").each(alignModal);
+            });   
+
+            $('.modal').on('show.bs.modal', function (e) {
+               $('.modal .modal-dialog').attr('class', 'modal-dialog  pulse  animated');
+              })
+              $('.modal').on('hide.bs.modal', function (e) {
+               $('.modal .modal-dialog').attr('class', 'modal-dialog  bounceOut  animated');
+              })
+            });
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#imagePreview').css('background-image', 'url('+e.target.result +')');
+                    $('#imagePreview').hide();
+                    $('#imagePreview').fadeIn(650);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        $("#imageUpload").change(function(event) {
+            readURL(this);
+            firesup = true;
+            selectedfile = event.target.files[0];
+            console.log(selectedfile.name);
+        }); 
+
+
+        function Read() {
+
+            //card number1 
+            feat.child('11111').once("value", snap => {
+                ti1.innerHTML += snap.child("features_title").val();
+                des1.innerHTML += snap.child("features_description").val();
+                img1.src = snap.child("features_photo").val();
+
+                update1.addEventListener("click", (e) => {
+                    title.value = snap.child("features_title").val();
+                    descrip.value = snap.child("features_description").val();
+                    var file = storage.ref("/FeaturesPicture/" + 11111);
+                    var feat_upd = database.ref("features/" + 11111);
+                    document.getElementById('imagePreview').style.backgroundImage = `url(${snap.child("features_photo").val()})`;
+
+
+                    $("#updat").on("click", e => {
+
+                        if (firesup == true) {
+                            var uploadTask = file.put(selectedfile);
+                            uploadTask.on("state_changed", function (snapshot) {
+                                var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                var downloadURL = uploadTask.snapshot.downloadURL;
+                                
+
+                                if (progress == 0) {
+                                    $.notify({
+                                        // options
+                                        message: "Uploading is Starting",
+                                    }, {
+                                        // settings
+                                        type: 'success',
+                                        animate: {
+                                            enter: 'animated fadeInDown',
+                                            exit: 'animated fadeOutUp'
+                                        }
+                                    });
+                                } else if (progress == 100) {
+                                        var upfeat = {
+                                        features_title: title.value,
+                                        features_description: descrip.value,
+                                        features_photo: downloadURL
+                                    };
+
+                                    if (feat_upd.update(upfeat)) {
+                                    Swal.fire({
+                                        title: 'Updated!',
+                                        text: "Your file has been Updated.",
+                                        icon: 'success',
+                                        showConfirmButton: false,
+                                        timer: 1000,
+                                        onClose: () => {
+                                            window.location.reload();
+                                        },
+                                    });
+                                  }
+                                }
+                            });
+                        } else {
+                            var upfeat = {
+                                features_title: title.value,
+                                features_description: descrip.value,
+                            };
+
+                            if (feat_upd.update(upfeat)) {
+                               Swal.fire({
+                                   title: 'Updated!',
+                                   text: "Your file has been Updated.",
+                                   icon: 'success',
+                                   showConfirmButton: false,
+                                   timer: 1000,
+                                   onClose: () => {
+                                            window.location.reload();
+                                   },
+                               });
+                            }
+                        }
+                       
+                    });
+               
+                });
+            });
+
+
+            //Card number 2
+            feat.child('22222').once("value", snap => {
+                ti2.innerHTML += snap.child("features_title").val();
+                des2.innerHTML += snap.child("features_description").val();
+                img2.src = snap.child("features_photo").val();
+
+                update2.addEventListener("click", (e) => {
+                    title.value = snap.child("features_title").val();
+                    descrip.value = snap.child("features_description").val();
+                    var file = storage.ref("/FeaturesPicture/" + 22222);
+                    var feat_upd = database.ref("features/" + 22222);
+                    document.getElementById('imagePreview').style.backgroundImage = `url(${snap.child("features_photo").val()})`;
+
+
+                    $("#updat").on("click", e => {
+                        if (firesup == true) {
+                            var uploadTask = file.put(selectedfile);
+                            uploadTask.on("state_changed", function (snapshot) {
+                                var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                var downloadURL = uploadTask.snapshot.downloadURL;
+
+                                if (progress == 0) {
+                                    $.notify({
+                                        // options
+                                        message: "Uploading is Starting",
+                                    }, {
+                                        // settings
+                                        type: 'success',
+                                        animate: {
+                                            enter: 'animated fadeInDown',
+                                            exit: 'animated fadeOutUp'
+                                        }
+                                    });
+                                } else if (progress == 100) {
+                                    var upfeat = {
+                                        features_title: title.value,
+                                        features_description: descrip.value,
+                                        features_photo: downloadURL
+                                    };
+
+                                    if (feat_upd.update(upfeat)) {
+                                        Swal.fire({
+                                            title: 'Updated!',
+                                            text: "Your file has been Updated.",
+                                            icon: 'success',
+                                            showConfirmButton: false,
+                                            timer: 1000,
+                                            onClose: () => {
+                                                window.location.reload();
+                                            },
+                                        });
+                                    }
+                                }
+
+                            });
+                        } else {
+                                var upfeat = {
+                                 features_title: title.value,
+                                 features_description: descrip.value
+                             };
+
+                             if (feat_upd.update(upfeat)) {
+                                Swal.fire({
+                                title: 'Updated!',
+                                text: "Your file has been Updated.",
+                                icon: 'success',
+                                showConfirmButton: false,
+                                timer: 1000,
+                                onClose: () => {
+                                    window.location.reload();
+                                    },
+                                });
+                            }
+                        }
+                        });
+                   });
+            });
+
+
+            //Card number 3
+            feat.child('33333').once("value", snap => {
+                ti3.innerHTML += snap.child("features_title").val();
+                des3.innerHTML += snap.child("features_description").val();
+                img3.src = snap.child("features_photo").val();
+
+                update3.addEventListener("click", (e) => {
+                    title.value = snap.child("features_title").val();
+                    descrip.value = snap.child("features_description").val();
+                    var file = storage.ref("/FeaturesPicture/" + 33333);
+                    var feat_upd = database.ref("features/" + 33333);
+                    document.getElementById('imagePreview').style.backgroundImage = `url(${snap.child("features_photo").val()})`;
+
+
+                    $("#updat").on("click", e => {
+
+                        if (firesup == true) {
+                            var uploadTask = file.put(selectedfile);
+                            uploadTask.on("state_changed", function (snapshot) {
+                                var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                var downloadURL = uploadTask.snapshot.downloadURL;
+
+                                if (progress == 0) {
+                                    $.notify({
+                                        // options
+                                        message: "Uploading is Starting",
+                                    }, {
+                                        // settings
+                                        type: 'success',
+                                        animate: {
+                                            enter: 'animated fadeInDown',
+                                            exit: 'animated fadeOutUp'
+                                        }
+                                    });
+                                } else if (progress == 100) {
+                                    var upfeat = {
+                                        features_title: title.value,
+                                        features_description: descrip.value,
+                                        features_photo: downloadURL
+                                    };
+
+                                    if (feat_upd.update(upfeat)) {
+                                        Swal.fire({
+                                            title: 'Updated!',
+                                            text: "Your file has been Updated.",
+                                            icon: 'success',
+                                            showConfirmButton: false,
+                                            timer: 1000,
+                                            onClose: () => {
+                                                window.location.reload();
+                                            },
+                                        });
+                                    }
+                                }
+
+                            });
+                        } else {
+                                var upfeat = {
+                                features_title: title.value,
+                                features_description: descrip.value
+                            };
+
+                            if (feat_upd.update(upfeat)) {
+                                Swal.fire({
+                                    title: 'Updated!',
+                                    text: "Your file has been Updated.",
+                                    icon: 'success',
+                                    showConfirmButton: false,
+                                    timer: 1000,
+                                    onClose: () => {
+                                        window.location.reload();
+                                    },
+                                });
+                            }
+                        } 
+                    });
+                });
+            });
+        }
+
+    </script>
+}

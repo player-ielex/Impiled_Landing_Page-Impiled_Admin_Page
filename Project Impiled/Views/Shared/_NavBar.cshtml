@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- For all -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css">
+    <link href="~/Content/Css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/Css/navbar.css" rel="stylesheet" />
+    <link href="~/Content/Css/preloader.css" rel="stylesheet" />
+
+    <!-- For homepage css-->
+    @if (ViewBag.Title == "Home")
+    {
+        <link href="~/Content/Css/home.css" rel="stylesheet" />
+    }
+
+    @if (ViewBag.Title == "Students")
+    {
+        <link href="~/Content/Css/newstud.css" rel="stylesheet" />
+    }
+
+    @if (ViewBag.Title == "Rewards")
+    {
+        <link href="~/Content/Css/rewards.css" rel="stylesheet" />
+        <link href="~/Content/Css/swiper.min.css" rel="stylesheet" />
+    }
+
+    @if (ViewBag.Title == "Meet The Team")
+    {
+        <link href="~/Content/Css/team.css" rel="stylesheet" />
+    }
+
+    @if (ViewBag.Title == "Support Us")
+    {
+        <link href="~/Content/Css/support.css" rel="stylesheet" />
+    }
+
+
+    <title>Impiled @ViewBag.Title </title>
+</head>
+<body onload="Read()">
+
+    <div class="spinner-wrapper">
+        <div class="spinner">
+            <div class="double-bounce1"></div>
+            <div class="double-bounce2"></div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <nav>
+            <input type="checkbox" id="nav" class="hidden">
+            <label for="nav" class="nav-btn"><i></i><i></i><i></i></label>
+            <div class="logo">
+                <a href="@Url.Action("Home")">
+                    <img src="~/Content/Img/Group 1.png" width="180" alt="" srcset="" />
+                </a>
+            </div>
+            <div class="nav-wrapper">
+                <ul>
+                    <li><a href="@Url.Action("Students")">Students</a></li>
+                    <li><a href="@Url.Action("Rewards")">Rewards</a></li>
+                    <li><a href="@Url.Action("MeetTheTeam")">Meet the Team</a></li>
+                    <li><a href="@Url.Action("Support")">Support Us</a></li>
+                    <li><a href="@Url.Action("Login","Admin")">Admin</a></li>
+                </ul>
+            </div>
+        </nav>
+        <br>
+        <br>
+        <br>
+        @RenderBody()
+    </div>
+
+
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/5.0.0/firebase.js"></script>
+
+    <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyCRLjeNAHL36BjWjnWQqci9WdKMbTXWqeY",
+            authDomain: "impiled.firebaseapp.com",
+            databaseURL: "https://impiled.firebaseio.com",
+            projectId: "impiled",
+            storageBucket: "impiled.appspot.com",
+            messagingSenderId: "252293471853",
+            appId: "1:252293471853:web:7d21fb772866ba32b3e964",
+            measurementId: "G-VG2JBH70E5"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <script src="~/Content/Script/jquery.min.js"></script>
+    <script src="~/Content/Script/jquery.cross-slide.js"></script>
+    <script src="~/Content/Script/swiper.min.js"></script>
+
+    <script>
+        preloaderFadeOutTime = 500;
+            function hidePreloader() {
+                var preloader = $('.spinner-wrapper');
+                preloader.fadeOut(preloaderFadeOutTime);
+            }
+    </script>
+
+    @RenderSection("down", false)
+</body>
+</html>

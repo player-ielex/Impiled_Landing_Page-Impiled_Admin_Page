@@ -1,0 +1,254 @@
+html {
+    scroll-behavior: smooth;
+  }
+
+nav {
+    margin-top: 0px !important;
+    padding-top: 10px;
+}
+
+.container-fluid {
+    background: url("../img/pink.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 1050px;
+    height:760px;
+}
+
+
+.flex {
+    display: grid;
+    grid-template-columns: auto auto;
+    margin-left: 90px;
+    margin-top: 15px;
+}
+
+.text h1 {
+    color: white;
+    font-size: 11vh;
+    margin-top: 15px;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+.text p {
+    margin-top: 10px;
+    color: white;
+    font-size: 13px;
+    font-family: Roboto Light;
+    width: 500px;
+}
+
+.text2 img {
+    width: 410px;
+    margin-top: -50px;
+}
+
+.text button {
+    margin-top: 20px;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 35px;
+    font-family: Roboto Black;
+    color: #FF0054;
+}
+
+
+
+.about-app h1{
+    text-align: center;
+    font-family: Roboto Black;
+
+}
+
+.about-app h6 {
+    text-align: center;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    padding: 0 100px;
+    margin-top: 80px;
+}
+
+.grid div {
+    padding: 0 28px;
+}
+
+.grid h2 {
+    font-family: Roboto Black;
+    margin-top: 10px;
+    font-size: 27px;
+}
+
+.grid p {
+    font-family: Roboto Thin;
+    font-size: 12px;
+}
+
+.first {
+    background: url("../img/Group\ 3.png");
+    background-size: 80% 260px;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 260px;
+    color: white;
+    text-align: center;
+}
+
+.first img {
+    margin-top: -30px;
+    width: 85px;
+}
+
+
+.second img {
+    margin-top: -30px;
+    width: 120px;
+}
+
+.third img {
+    margin-top: -30px;
+    width: 120px;
+}
+
+.second {
+    background: url("../img/Group\ 3.png");
+    background-size: 80% 260px;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 260px;
+    color: white;
+    text-align: center;
+}
+
+.third {
+    background: url("../img/Group\ 3.png");
+    background-size: 80% 260px;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 260px;
+    color: white;
+    text-align: center;
+}
+
+
+.ser-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    padding: 0 100px;
+    margin-top: 50px;
+}
+
+.srow {
+    text-align: center;
+    height: 600px;
+}
+
+.srow img {
+    width: 400px;
+    margin-top: -50px;
+}
+
+.ser-grid h2 {
+    font-family: Roboto Black;
+    font-size: 32px;
+}
+
+.ser-grid p {
+    font-family: Roboto Light;
+    font-size: 14px;
+}
+
+.frow {
+    text-align: right;
+}
+
+.footer {
+    margin-top: 150px;
+    background: url("../img/Group\ 6.png");
+    background-size: 100% 250px;
+    background-repeat: no-repeat;
+    background-position: 100% 40%;
+    height: 250px;
+}
+
+.footer h1 {
+    padding-top: 100px;
+    color: white;
+    font-size: 55px;
+    font-family: Roboto Black;
+}
+
+.footer p {
+    text-align: center;
+    color: white;
+    font-family: Roboto Light;
+    font-size: 15px;
+}
+
+@media screen and (max-width:1050px){
+    .logo {
+        margin-top: 20px;
+    };
+    
+    nav ul li {
+        padding-top: 0;
+    }
+
+}
+
+
+@media screen and (max-width:850px){
+
+    .frow {
+        text-align: center;
+    }
+
+    .ser-grid{
+        display: block;
+        text-align: center;
+    }
+
+    .grid{
+        display: block;
+    }
+
+    nav ul li {
+        padding-top: 0;
+    }
+
+    .text {
+        text-align: center;
+    }
+    .text p {
+        width: 100%;
+        padding: 0 50px;
+    }
+
+
+    .con {
+        margin-top: -10px;
+        padding: 0;
+        width: 100%;
+        height: 100vh;
+        background: url("../img/pink.png");
+        background-position: 10% 45%;
+        background-repeat: no-repeat;
+        background-size: 155% 1100px;
+    }
+
+    .flex {
+        display: block;
+        margin-left: 0;
+        text-align: center;
+    }
+
+    .logo {
+    
+        margin-top: 20px;
+    }
+
+}
+
+

@@ -1,0 +1,288 @@
+﻿
+@{
+    ViewBag.Title = "AllAnnouncement";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    if (Session["adminId"] == null)
+    {
+        Response.Redirect("~/Admin/Login");
+    }
+}
+
+
+    <div class="container-fluid mt-5">
+        <div class="row ">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title text-center"><b>All Announcement</b></h1>
+                        <p class="card-text text-center">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat repudiandae cum veritatis unde modi, itaque voluptatem id quae e</p>
+
+                        <div class="table-responsive py-4">
+                            <table class="table table-flush text-center" id="announcement-basic" style="width: 100% ">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th class="text-center">Picture</th>
+                                        <th class="text-center">Title</th>
+                                        <th class="text-center">When</th>
+                                        <th class="text-center">Where</th>
+                                        <th class="text-center">What</th>
+                                        <th class="text-center">Posted</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<!-- Modal Here For Update-->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content ">
+                <div class="modal-header">
+                    <h1 class='col-12 modal-title text-center' style="font-size: 35px">
+                        Update Students
+                    </h1>
+                </div>
+                <div class="modal-body col-12">
+                    <form>
+                        <div class="row">
+                            <div class="col-md">
+                                <div class="avatar-upload">
+                                    <div class="avatar-edit">
+                                        <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" required />
+                                        <label for="imageUpload"></label>
+                                    </div>
+                                    <div class="avatar-preview">
+                                        <div id="imagePreview" style="background-image: url(http://i.pravatar.cc/500?img=7);">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md">
+                                <div class="form-group">
+                                    <label for="subjectname">Title</label>
+                                    <input type="text" id="antitle" class="form-control" placeholder="Please Enter Rewards Name" required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="subjectname">When</label>
+                                    <input type="text" id="anwhen" class="form-control" placeholder="Please Enter Rewards Quantity" required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="subjectname">Where</label>
+                                    <input type="text" id="anwhere" class="form-control" placeholder="Please Enter Rewards Quantity" required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="subjectname">What</label>
+                                    <textarea class="form-control" id="anwhat" placeholder="Type Rewards Task" rows="4" required></textarea>
+                                </div>
+
+                            </div>
+                        </div>
+                        <center>
+                            <button type="button" class="btn btn-warning" id="update">Update</button>
+                            <!-- <input type="submit" class="btn btn-warning" id="update" value="Update" />-->
+                        </center>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+@section tab {
+    <script>
+        var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        var a = new Date();
+        var b = a.getTime();
+        var upd = b;
+        var selectedfile;
+        var firesup = false;
+
+        var storageRef = firebase.storage().ref();
+        var storage = firebase.storage();
+        var database = firebase.database();
+        var announ = database.ref("announcement");
+
+        var getDate = monthNames[a.getMonth()] + " " + a.getDate() + " " + a.getFullYear();
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#imagePreview').css('background-image', 'url(' + e.target.result + ')');
+                    $('#imagePreview').hide();
+                    $('#imagePreview').fadeIn(650);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        $("#imageUpload").change(function (event) {
+            readURL(this);
+            firesup = true;
+            selectedfile = event.target.files[0];
+            console.log(selectedfile.name);
+        });
+
+        function Read() {
+            var table = $('#announcement-basic').DataTable();
+            announ.on("child_added", snap => {
+                var an = snap.val();   
+                if (an.announ_photo == "none") {
+                    var delandup = '<button data-toggle="modal" data-target="#exampleModal" onclick="Update(' + snap.child("announ_id").val() + "," + "'" + snap.child("announ_name").val() + "'" + "," + "`" + snap.child("announ_when").val() + "`" + "," + "`" + snap.child("announ_where").val() + "`" + "," + "`" + snap.child("announ_what").val() + "`" + "," + "`" + snap.child("announ_photo").val() + "`" + ')" class="btn btn-warning btn-sm"> Update </button> <button onclick="Delete(' + snap.child("announ_id").val() + ')" class="btn btn-danger btn-sm">Delete</button>';
+                    var dataSet = ["none", snap.child("announ_name").val(), snap.child("announ_when").val(), snap.child("announ_where").val(), '<div style="width: 250px; height: 50px; overflow-x:scroll">' + snap.child("announ_what").val() + '</div>', snap.child("announ_date").val(), delandup];
+                    table.rows.add([dataSet]).draw();
+                } else {
+                    var picture = '<img width="70px" class="text-align" src="' + snap.child("announ_photo").val() + '">'
+                    var delandup = '<button data-toggle="modal" data-target="#exampleModal" onclick="Update(' + snap.child("announ_id").val() + "," + "'" + snap.child("announ_name").val() + "'" + "," + "`" + snap.child("announ_when").val() + "`" + "," + "`" + snap.child("announ_where").val() + "`" + "," + "`" + snap.child("announ_what").val() + "`" + "," + "`" + snap.child("announ_photo").val() + "`" + ')" class="btn btn-warning btn-sm"> Update </button> <button onclick="Delete(' + snap.child("announ_id").val() + ')" class="btn btn-danger btn-sm">Delete</button>';
+                    var dataSet = [picture, snap.child("announ_name").val(), snap.child("announ_when").val(), snap.child("announ_where").val(), '<div style="width: 250px; height: 50px; overflow-x:scroll">' + snap.child("announ_what").val() + '</div>', snap.child("announ_date").val(), delandup];
+                    table.rows.add([dataSet]).draw();
+                }
+               hidePreloader();
+            });
+        }
+
+        function Update(id, title, when, where, what, photo) {
+            $("#antitle").val(title);
+            $("#anwhen").val(when);
+            $("#anwhere").val(where);
+            $("#anwhat").val(what);
+            document.getElementById('imagePreview').style.backgroundImage = `url(${photo})`;
+
+            $("#update").on("click", e => {
+                var atitle = document.getElementById("antitle");
+                var awhen = document.getElementById("anwhen");
+                var awhere = document.getElementById("anwhere");
+                var awhat = document.getElementById("anwhat");
+                var announ_upd = database.ref("announcement/" + id);
+                var file = storage.ref("/AnnouncePicture/" + upd);
+
+                console.log(id);
+                
+                if (firesup == true) {
+                   // if (pic.delete()) {
+                        var uploadTask = file.put(selectedfile);
+                        uploadTask.on("state_changed", function (snapshot) {
+                            var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+
+                            if (progress == 0) {
+                                $.notify({
+                                    // options
+                                    message: "Uploading is Starting",
+                                }, {
+                                    // settings
+                                    type: 'success',
+                                    animate: {
+                                        enter: 'animated fadeInDown',
+                                        exit: 'animated fadeOutUp'
+                                    }
+                                });
+                            } else if (progress == 100) {
+                                file.getDownloadURL().then(function(url) {
+                                var update = {
+                                    announ_id: id,
+                                    announ_name: atitle.value,
+                                    announ_what: awhat.value,
+                                    announ_when: awhen.value,
+                                    announ_where: awhere.value,
+                                    announ_photo: url,
+                                    announ_status: "Updated"
+                                 };
+                                    if (announ_upd.update(update)) {
+                                        Swal.fire({
+                                            title: 'Updated!',
+                                            text: "Your file has been Updated.",
+                                            icon: 'success',
+                                            showConfirmButton: false,
+                                            timer: 1000,
+                                            onClose: () => {
+                                                window.location.reload();
+                                            },
+                                         
+                                        });
+                                   }
+                                });
+                                
+                            }
+                        });
+                    //}
+                } else {
+                    var update = {
+                       announ_id: id,
+                       announ_name: atitle.value,
+                       announ_what: awhat.value,
+                       announ_when: awhen.value,
+                       announ_where: awhere.value,
+                       announ_photo: "none",
+                       announ_status: "Updated"
+                    };
+                    if (announ_upd.update(update)) {
+                               Swal.fire({
+                                  title: 'Updated!',
+                                  text: "Your file has been Updated.",
+                                  icon: 'success',
+                                  showConfirmButton: false,
+                                  timer: 1000,
+                                  onClose: () => {
+                                      window.location.reload();
+                               },
+                           });
+
+                        };
+                }
+            });
+               
+        }
+        
+        function Delete(id) {
+            var del = firebase.database().ref("announcement/" + id);
+
+            announ.on("child_added", snap => {
+
+                if (snap.child("announ_photo").val() == "none") {
+                    if (del.remove) {
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: "Your file has been Deleted.",
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 1000,
+                            onClose: () => {
+                               window.location.reload();
+                            }
+
+                        });
+                    }
+
+                } else {
+                    var pic = storageRef.child(`/AnnouncePicture/${id}`);
+                    if (pic.delete()) {
+                        if (del.remove()) {
+                            Swal.fire({
+                                title: 'Deleted!',
+                                text: "Your file has been Deleted.",
+                                icon: 'success',
+                                showConfirmButton: false,
+                                timer: 1000,
+                                onClose: () => {
+                                    window.location.reload();
+                                }
+
+                            });
+                        }
+                    }
+                }
+            });
+            }
+           
+    </script>    
+}
+
+

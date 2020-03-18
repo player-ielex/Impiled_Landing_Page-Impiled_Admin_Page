@@ -1,0 +1,172 @@
+﻿@{
+    ViewBag.Title = "Subjects";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    if (Session["adminId"] == null)
+    {
+        Response.Redirect("~/Admin/Login");
+    }
+}
+
+<div class="container-fluid mt-4">
+    <div class="row card-wrapper">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center">
+                        <b>Add new Subjects</b>
+                    </h2>
+
+                    <form action="get">
+                        <div class="form-group">
+                            <label for="subjectname">Subject Name</label>
+                            <input type="text" class="form-control" id="subject_name" placeholder="Please Enter Subjects" required />
+                        </div>
+
+                        <input class="btn btn-success" value="Add" id="add" type="submit">
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title text-center"><b>All Subjects</b></h1>
+                    <p class="card-text text-center">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat repudiandae cum veritatis</p>
+
+                    <div class="table-responsive py-4">
+                        <table class="table table-flush" id="subject-basic" style="width: 100%">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th class="text-center">Subject Name</th>
+                                    <th width="250px"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="pl-9" id="sub_tab">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section tab {
+    <script>
+        var database = firebase.database();
+        var subject = database.ref("subjects/");
+        var sub_field = document.getElementById("subject_name");
+        var add = document.getElementById("add");
+
+        var a = new Date();
+        var b = a.getTime();
+        var upd = b;
+
+        add.addEventListener("click", function (e) {
+            e.preventDefault();
+            if (sub_field.value != "") {
+                CreateSubject(sub_field.value);
+            }
+        });
+
+        //Create
+        function CreateSubject(name) {
+            upd += 1;
+            var subjects = {
+                subject_id: upd,
+                subject_name: name
+            }
+            var subject_sav = database.ref("subjects/" + upd);
+            if (subject_sav.set(subjects)) {
+                $.notify({
+                    // options
+                    message: "Added Successfully",
+                }, {
+                    // settings
+                    type: 'success',
+                    animate: {
+                        enter: 'animated fadeInDown',
+                        exit: 'animated fadeOutUp'
+                    }
+                });
+            }
+            sub_field.value = '';
+        }
+
+        //Read
+        function Read() {
+            var table = $('#subject-basic').DataTable();
+
+            subject.on("child_added", snap =>
+            {
+             
+                var delandup = '<button onclick="Update(' + snap.child("subject_id").val() + "," +"'"+snap.child('subject_name').val()+"'" +')" class="btn btn-warning btn-sm"> Update </button> <button onclick="Delete('+ snap.child("subject_id").val() +')" class="btn btn-danger btn-sm">Delete</button>';
+                var dataSet = [snap.child("subject_name").val(), delandup];
+                table.rows.add([dataSet]).draw();
+                hidePreloader();
+            });
+        }
+
+
+        //Delete
+        function Delete(id) {
+            var index, table = document.getElementById('subject-basic');
+            for(var i = 1; i < table.rows.length; i++)
+            {
+                table.rows[i].cells[1].onclick = function() 
+                {
+                    index = this.parentElement.rowIndex;
+                    table.deleteRow(index);
+                }
+            };
+            var del = firebase.database().ref("subjects/" + id);
+            if (del.remove()) {
+                $.notify({
+                    // options
+                    message: "Deleted Successfully",
+                }, {
+                    // settings
+                    type: 'success',
+                    animate: {
+                        enter: 'animated fadeInDown',
+                        exit: 'animated fadeOutUp'
+                    }
+                });
+            }
+        }
+
+        //Update
+        function Update(id, subject) {
+            var value = subject;
+            var subject_upd = database.ref("subjects/" + id);
+
+            Swal.fire({
+                title: '<strong>Update Subject</strong>',
+                icon: 'warning',
+                input: 'text',
+                inputValue: value,
+            }).then((result) => {
+
+                if (result.value) {
+                     Swal.fire({
+                    title: 'Updated!' ,
+                    text: "Your file has been Updated.",
+                    icon: 'success',
+                
+                    showConfirmButton: false,
+                    timer: 1000,
+                    onClose: () => {
+                       window.location.reload();
+                    },
+                });
+                    
+                var new_subname = result.value;
+                var update = { 'subject_id': id, 'subject_name': new_subname };
+                subject_upd.update(update);
+
+                }
+            });
+        }
+    </script>
+}

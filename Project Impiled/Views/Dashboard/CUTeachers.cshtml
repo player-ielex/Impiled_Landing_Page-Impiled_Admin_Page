@@ -1,0 +1,228 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "CUTeachers";
+
+    if (Session["adminId"] == null)
+    {
+        Response.Redirect("~/Admin/Login");
+    }
+}
+
+
+<div class="header bg-default pb-6">
+    <div class="container-fluid">
+        <div class="header-body">
+            <div class="row align-items-center py-4">
+                <div class="col-lg-6 col-7">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt--5">
+    <div class="row">
+        <div class="col-lg-8 card-wrapper">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title text-center"><b>Teacher</b></h1>
+                    <p class="card-text text-center">Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa beatae tenetur velit repellat </p><br />
+
+                    <form>
+                        <div class="form-group">
+                            <label for="subjectname">First Name</label>
+                            <input type="text" id="fname" class="form-control" placeholder="Please Enter your First Name" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subjectname">Middle Name</label>
+                            <input type="text" id="mname" class="form-control" placeholder="Please Enter your Middle Name" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subjectname">Last Name</label>
+                            <input type="text" id="lname"  class="form-control" placeholder="Please Enter your Last Name" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subjectname">Email</label>
+                            <input type="text" id="email" class="form-control" placeholder="Please Enter your Email" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subjectname">Password</label>
+                            <input type="text" id="pass" class="form-control" placeholder="Please Enter your Password" required />
+                        </div>
+
+                        <input type="submit" class="btn btn-success" id="add" value="Add" />
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 ">
+            <div class="card card-profile">
+                <!-- Background Images -->
+
+                <div class="card-body text-center">
+                    <div class="avatar-upload">
+                        <div class="avatar-edit">
+                            <form>
+                                <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" required />
+                                <label for="imageUpload"></label>
+                            </form>
+                        </div>
+                        <div class="avatar-preview">
+                            <div id="imagePreview" style="background-image: url(http://i.pravatar.cc/500?img=7);">
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="card-title">Profile Picture</h3>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section tab {
+    <script>
+
+        var database = firebase.database();
+        var teac = database.ref("teachers/");
+        var storageRef = firebase.storage();
+
+
+        var fname = document.getElementById("fname");
+        var mname = document.getElementById("mname");
+        var lname = document.getElementById("lname");
+        var email = document.getElementById("email");
+        var pass = document.getElementById("pass");
+        var img = document.getElementById("imageUpload");
+
+        var add = document.getElementById("add");
+
+        var a = new Date();
+        var b = a.getTime();
+        var upd = b;
+
+        var selectedfile;
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#imagePreview').css('background-image', 'url('+e.target.result +')');
+                    $('#imagePreview').hide();
+                    $('#imagePreview').fadeIn(650);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        $("#imageUpload").change(function(event) {
+            readURL(this);
+            selectedfile = event.target.files[0];
+            console.log(selectedfile.name);
+        });
+
+        add.addEventListener("click", function (e) {
+            e.preventDefault();
+            if (fname.value != "" && mname.value != "" && lname.value != "" &&  email.value != "" && pass.value != "" && img.value != "") {
+                Create(fname.value, mname.value, lname.value, email.value, pass.value);
+           }
+        });
+
+        function Create(fname, mname, lname, email, pass) {
+            upd += 1;
+            firebase.auth().createUserWithEmailAndPassword(email, pass)
+                .then(function (user) {
+                    var user = firebase.auth().currentUser;
+                    var file = storageRef.ref("/TeacherPicture/" + user.uid);
+                    var uploadTask = file.put(selectedfile);
+
+                    uploadTask.on("state_changed", function (snapshot) {
+                        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        var downloadURL = uploadTask.snapshot.downloadURL;
+
+                        var teachers = {
+                            teacher_id: user.uid,
+                            teacher_fname: fname,
+                            teacher_mname: mname,
+                            teacher_lname: lname,
+                            teacher_email: email,
+                            teacher_password: pass,
+                            teacher_photo: downloadURL
+                        };
+
+                        var teacher_sav = database.ref("teachers/" + user.uid);
+
+                        if (progress == 0) {
+                            $.notify({
+                                // options
+                                message: "Upload Starting",
+                            }, {
+                                // settings
+                                type: 'success',
+                                animate: {
+                                    enter: 'animated fadeInDown',
+                                    exit: 'animated fadeOutUp'
+                                }
+                            });
+                        } else if (progress == 50) {
+                            $.notify({
+                                // options
+                                message: "Upload at" + progress + "% ",
+                            }, {
+                                // settings
+                                type: 'success',
+                                animate: {
+                                    enter: 'animated fadeInDown',
+                                    exit: 'animated fadeOutUp'
+                                }
+                            });
+                        } else if (progress == 100) {
+                            $.notify({
+                                // options
+                                message: "Upload is Finish ",
+                            }, {
+                                // settings
+                                type: 'success',
+                                animate: {
+                                    enter: 'animated fadeInDown',
+                                    exit: 'animated fadeOutUp'
+                                }
+                            });
+                        }
+
+                        if (progress == 100 && teacher_sav.set(teachers)) {
+                            Swal.fire({
+                                title: 'Save!',
+                                text: "Your file has been Saved.",
+                                icon: 'success',
+
+                                showConfirmButton: false,
+                                timer: 1000,
+                                onClose: () => {
+                                    window.location.reload();
+                                }
+                            });
+                        }
+                    }, function (error) {
+                            console.log(error);
+                    });
+
+                }).catch(function(error) {
+                  console.log(error);
+                });
+
+        };
+
+        function Read() { };
+
+    </script>
+}

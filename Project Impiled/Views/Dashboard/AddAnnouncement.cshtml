@@ -1,0 +1,186 @@
+﻿
+@{
+    ViewBag.Title = "AddAnnouncement";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    if (Session["adminId"] == null)
+    {
+        Response.Redirect("~/Admin/Login");
+    }
+}
+
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-lg-12 card-wrapper">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title text-center"><b>Add Annoucement</b></h1>
+                        <p class="card-text text-center">Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa beatae tenetur velit repellat </p><br />
+
+                        <form>
+                            <div class="row">
+                                <div class="col-md">
+                                    <div class="avatar-upload">
+                                        <div class="avatar-edit">
+                                            <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" required />
+                                            <label for="imageUpload"></label>
+                                        </div>
+                                        <div class="avatar-preview">
+                                            <div id="imagePreview" style="background-image: url(http://i.pravatar.cc/500?img=7);">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md">
+                                    <div class="form-group">
+                                        <label for="subjectname">Title</label>
+                                        <input type="text" id="title" class="form-control" placeholder="Please Enter Rewards Name" required />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="subjectname">When</label>
+                                        <input type="text" id="when" class="form-control" placeholder="Please Enter Rewards Quantity" required />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="subjectname">Where</label>
+                                        <input type="text" id="where" class="form-control" placeholder="Please Enter Rewards Quantity" required />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="subjectname">Date Posted</label>
+                                        <input type="text" id="date" class="form-control" placeholder="Please Enter Rewards Quantity" required />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="subjectname">What</label>
+                                        <textarea class="form-control" id="what" placeholder="Type Rewards Task" rows="4"></textarea>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <center>
+                                <input type="submit" class="btn btn-success" id="add" value="Add" />
+                            </center>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@section tab {
+    <script>
+        var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        var a = new Date();
+        var b = a.getTime();
+        var upd = b;
+        var selectedfile;
+        var firesup = false;
+
+        var storageRef = firebase.storage().ref();
+        var storage = firebase.storage();
+        var database = firebase.database();
+        var announ = database.ref("announcement");
+
+         var getDate = monthNames[a.getMonth()] + " " + a.getDate() + " " + a.getFullYear();
+
+        $("#date").val(getDate.toString());
+
+        $("#add").on("click", (e) => {
+            if ($("#title").val().trim() != '' && $("#when").val().trim() != '' && $("#where").val().trim() != '' && $("#date").val().trim() != '' && $("#what").val().trim() != '') {
+                e.preventDefault();
+                Create();
+            }
+        });
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#imagePreview').css('background-image', 'url(' + e.target.result + ')');
+                    $('#imagePreview').hide();
+                    $('#imagePreview').fadeIn(650);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        $("#imageUpload").change(function (event) {
+            readURL(this);
+            firesup = true;
+            selectedfile = event.target.files[0];
+            console.log(selectedfile.name);
+        });
+
+        function Create() {
+            upd += 1;
+
+            if (firesup === true) {
+                var file = storage.ref("/AnnouncePicture/" + upd);
+                var uploadTask = file.put(selectedfile);
+                uploadTask.on("state_changed", function (snapshot) {
+                    var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    file.getDownloadURL().then(function (url) {
+
+                        var announcement = {
+                            announ_id: upd,
+                            announ_date: getDate.toString(),
+                            announ_name: $("#title").val().trim(),
+                            announ_what: $("#what").val().trim(),
+                            announ_when: $("#when").val().trim(),
+                            announ_where: $("#where").val().trim(),
+                            announ_photo: url,
+                            announ_status: "Added"
+                        };
+                        var announ_sav = database.ref("announcement/" + upd);
+                        if (announ_sav.set(announcement)) {
+                            $.notify({
+                                // options
+                                message: "Added Successfully",
+                            }, {
+                                // settings
+                                type: 'success',
+                                animate: {
+                                    enter: 'animated fadeInDown',
+                                    exit: 'animated fadeOutUp'
+                                }
+                            });
+                        }
+                    });
+                });
+
+            } else {
+                var announcement = {
+                    announ_id: upd,
+                    announ_date: getDate.toString(),
+                    announ_name: $("#title").val().trim(),
+                    announ_what: $("#what").val().trim(),
+                    announ_when: $("#when").val().trim(),
+                    announ_where: $("#where").val().trim(),
+                    announ_photo: "none",
+                    announ_status: "Added"
+                };
+                var announ_sav = database.ref("announcement/" + upd);
+                if (announ_sav.set(announcement)) {
+                    $.notify({
+                        // options
+                        message: "Added Successfully",
+                    }, {
+                        // settings
+                        type: 'success',
+                        animate: {
+                            enter: 'animated fadeInDown',
+                            exit: 'animated fadeOutUp'
+                        }
+                    });
+                }
+            }
+        }
+
+        function Read() {
+            hidePreloader();
+        }
+
+
+
+
+    </script>
+}

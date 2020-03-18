@@ -1,0 +1,234 @@
+﻿
+@{
+    ViewBag.Title = "Sections";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    if (Session["adminId"] == null)
+    {
+        Response.Redirect("~/Admin/Login");
+    }
+}
+
+<div class="container-fluid mt-4">
+    <div class="row card-wrapper">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center"><b>Add new Section</b></h2>
+
+                    <form>
+                        <div class="form-group">
+                            <label for="subjectname">Section Name</label>
+                            <input type="text" class="form-control" placeholder="Please Enter Section Name" id="section_name" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subjectname">Grade Level</label>
+                            <select id="grade_level" class="form-control" required>
+                                <option disabled selected>Please Select Grade Level</option>
+                            </select>
+                        </div>
+
+                        <input class="btn btn-success" value="Add" id="add" type="submit">
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title  text-center"><b>All Sections</b></h1>
+                    <p class="card-text  text-center">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat repudiandae cum veritatis unde</p>
+
+                    <div class="table-responsive py-4">
+                        <table class="table table-flush" id="section-basic">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Section Name</th>
+                                    <th>Grade Level</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody class="pl-9"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <h1 class='col-12 modal-title text-center' style="font-size: 35px">
+                    Update Section
+                </h1>
+            </div>
+            <div class="modal-body col-12 text-center">
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Please Enter Section Name" id="sec" required />
+                    </div>
+
+                    <div class="form-group">
+                        <select id="grade" class="form-control" required>
+                        </select>
+                    </div>
+                </form>              
+                <button type="button" id="update" class="btn btn-warning text-center" tabindex="1" data-dismiss="modal">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section tab {
+    <script>
+        var database = firebase.database();
+        var section = database.ref("sections/");
+        var gradelevel = database.ref("grade_level/");
+
+        var section_field = document.getElementById("section_name");
+        var grade_field = document.getElementById("grade_level");
+        var grade = document.getElementById("grade");
+        var add = document.getElementById("add");
+
+        var a = new Date();
+        var b = a.getTime();
+        var upd = b;
+
+        $(document).ready(function(){
+            function alignModal(){
+                var modalDialog = $(this).find(".modal-dialog");
+                /* Applying the top margin on modal dialog to align it vertically center */
+                modalDialog.css("margin-top", Math.max(0, ($(window).height() - modalDialog.height()) / 2));
+            }
+            // Align modal when it is displayed
+            $(".modal").on("shown.bs.modal", alignModal);
+    
+            // Align modal when user resize the window
+            $(window).on("resize", function(){
+                $(".modal:visible").each(alignModal);
+            });   
+
+            $('.modal').on('show.bs.modal', function (e) {
+               $('.modal .modal-dialog').attr('class', 'modal-dialog  pulse  animated');
+              })
+              $('.modal').on('hide.bs.modal', function (e) {
+               $('.modal .modal-dialog').attr('class', 'modal-dialog  bounceOut  animated');
+              })
+            });
+
+        add.addEventListener("click", function (e) {
+            e.preventDefault();
+            if (section_field.value != "" && grade_field.value != "") {
+                Create(section_field.value, grade_field.value);
+            }
+        });
+
+
+        function Read() {
+            var table = $('#section-basic').DataTable();
+
+            gradelevel.on("child_added", function (snapChat) {
+                var subdat = snapChat.val();
+                grade_field.innerHTML += `
+                  <option value="${subdat.grade_id}">${subdat.grade_level}</option>
+                `;
+                grade.innerHTML += `
+                  <option value="${subdat.grade_id}">${subdat.grade_level}</option>
+                `;
+            });
+
+            section.on("child_added", snap => {
+                var gradeid = snap.val().grade_id;
+
+                gradelevel.child(gradeid).once('value', snapper => {
+                    var delandup = '<button data-toggle="modal" data-target="#exampleModal" class="btn btn-warning morphing-btn btn-sm mortext-white" onclick="Update('+ snap.child("section_id").val() + "," +"'" + snap.child("section_name").val() + "'" +"," +snap.child('grade_id').val() +')"> Update </button> <button onclick="Delete(' + snap.child("section_id").val() + ')" class="btn btn-danger btn-sm">Delete</button>';
+                    var dataSet = [snap.child("section_name").val(), snapper.child("grade_level").val(), delandup];
+                    table.rows.add([dataSet]).draw();
+                    hidePreloader();
+
+                });
+            });
+        };  
+
+        function Create(name, grade) {
+            upd += 1;
+            var sections = {
+                section_id: upd,
+                section_name: name,
+                grade_id: grade
+            }
+            var section_sav = database.ref("sections/" + upd);
+            if (section_sav.set(sections)) {
+                $.notify({
+                    // options
+                    message: "Added Successfully",
+                }, {
+                    // settings
+                    type: 'success',
+                    animate: {
+                        enter: 'animated fadeInDown',
+                        exit: 'animated fadeOutUp'
+                    }
+                });
+            }
+            section_field.value = '';
+        };
+
+        function Update(id, secname, grid) {
+            $("#sec").val(secname);
+            $("#grade").val(grid);
+
+
+            $("#update").on("click", e => {
+                var newsec = document.getElementById("sec");
+                var newgra = document.getElementById("grade");
+                var section_upd = database.ref("sections/" + id);
+
+                var update = { 'section_id': id, 'section_name': newsec.value, 'grade_id': newgra.value };
+                if (section_upd.update(update)) {
+                        Swal.fire({
+                        title: 'Updated!',
+                        text: "Your file has been Updated.",
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1000,
+                        onClose: () => {
+                            window.location.reload();
+                        },
+                   });
+                }
+            });
+        }
+
+        function Delete(id) {
+            var index, table = document.getElementById('section-basic');
+            for (var i = 1; i < table.rows.length; i++) {
+                table.rows[i].cells[2].onclick = function () {
+                    index = this.parentElement.rowIndex;
+                    table.deleteRow(index);
+                }
+            };
+            var del = firebase.database().ref("sections/" + id);
+            if (del.remove()) {
+                $.notify({
+                    // options
+                    message: "Deleted Successfully",
+                }, {
+                    // settings
+                    type: 'success',
+                    animate: {
+                        enter: 'animated fadeInDown',
+                        exit: 'animated fadeOutUp'
+                    }
+                });
+            }
+        }
+
+
+    </script>
+}
+

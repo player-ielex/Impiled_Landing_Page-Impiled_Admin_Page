@@ -1,0 +1,299 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "CUStudents";
+
+    if (Session["adminId"] == null)
+    {
+        Response.Redirect("~/Admin/Login");
+    }
+}
+
+
+<div class="header bg-default pb-6">
+    <div class="container-fluid">
+        <div class="header-body">
+            <div class="row align-items-center py-4">
+                <div class="col-lg-6 col-7">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt--5">
+    <div class="row">
+        <div class="col-lg-8 card-wrapper">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title text-center"><b>Students</b></h1>
+                    <p class="card-text text-center">Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa beatae tenetur velit repellat </p><br />
+
+                    <form>
+                        <div class="form-group">
+                            <label for="subjectname">Student Id</label>
+                            <input type="text" id="sid" class="form-control" disabled/>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subjectname">First Name</label>
+                            <input type="text" id="fname" class="form-control" placeholder="Please Enter your First Name" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subjectname">Middle Name</label>
+                            <input type="text" id="mname" class="form-control" placeholder="Please Enter your Middle Name" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subjectname">Last Name</label>
+                            <input type="text" id="lname" class="form-control" placeholder="Please Enter your Last Name" required />
+                        </div>
+
+                        <div class="form-group">
+                             <label for="subjectname">Section</label>
+                             <select id="section" class=" form-control" required>
+                                <option disabled selected>Please Select Rewards Category</option>
+                             </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subjectname">Email</label>
+                            <input type="email" id="email" class="form-control" placeholder="Please Enter your Username" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subjectname">Password</label>
+                            <input type="text" id="pass" class="form-control" placeholder="Please Enter your Password" required />
+                        </div>
+
+                        <input type="submit" class="btn btn-success" id="add" value="Add" />
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 ">
+            <div class="card card-profile">
+                <!-- Background Images -->
+
+                <div class="card-body text-center">
+                    <div class="avatar-upload">
+                        <div class="avatar-edit">
+                            <form>
+                                <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" required />
+                                <label for="imageUpload"></label>
+                            </form>
+                        </div>
+                        <div class="avatar-preview">
+                            <div id="imagePreview" style="background-image: url(http://i.pravatar.cc/500?img=7);">
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="card-title">Profile Picture</h3>
+                    <p class="card-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nam excepturi inventore exercitationem nostrum veritatis reiciendis repellendus illum fugit cumque? Temporibus sed nemo expedita eum placeat voluptas impedit iure obcaecati voluptatem!</p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section tab {
+    <script>
+
+        var database = firebase.database();
+        var students = database.ref("students/");
+        var storageRef = firebase.storage();
+
+
+        var fname = document.getElementById("fname");
+        var mname = document.getElementById("mname");
+        var lname = document.getElementById("lname");
+        var email = document.getElementById("email");
+        var pass = document.getElementById("pass");
+        var secgrad = document.getElementById("section");
+        var img = document.getElementById("imageUpload");
+
+        var add = document.getElementById("add");
+
+        var a = new Date();
+        var b = a.getTime();
+        var upd = b;
+
+        var selectedfile;
+       // var yors = true;
+       // var previousfirst, previouslast;
+
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#imagePreview').css('background-image', 'url('+e.target.result +')');
+                    $('#imagePreview').hide();
+                    $('#imagePreview').fadeIn(650);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        $("#imageUpload").change(function(event) {
+            readURL(this);
+            selectedfile = event.target.files[0];
+            console.log(selectedfile.name);
+        }); 
+
+        add.addEventListener("click", function (e) {
+            e.preventDefault();
+
+
+            ValidateInput();
+
+            function ValidateInput() {
+                if (fname.value == "") {
+                        notif("Firstname is empty");
+                    } else if (mname.value == "") {
+                        notif("Middlename is empty");
+                    } else if (lname.value == "") {
+                        notif("Lastname is empty");
+                    } else if (secgrad.value == "") {
+                        notif("Section is empty");
+                    } else if (email.value == "") {
+                        notif("Email is empty");
+                    } else if (looksLikeMail(email.value) == false) {
+                        notif("Wrong Email");
+                    }else if (pass.value == "") {
+                        notif("Password is empty");
+                    } else if (CheckPassword(pass.value) == false) {
+                        notif("The password must required minimum of 7 characters");
+                    } else if (img.value == "") {
+                        notif("Profile is empty");
+                    } else {
+                        Create(fname.value, mname.value, lname.value, secgrad.value, email.value, pass.value);
+                    }
+            }
+
+            //if (previousfirst == null && previouslast == null) { }
+           // else if (fname.value == previousfirst && lname.value == previouslast) { yors = false }
+            //else if (fname.value == previousfirst && lname.value != previouslast) { yors = true }
+            //else if (fname.value != previousfirst && lname.value == previouslast) { yors = true }
+            //else if (fname.value != previousfirst && lname.value != previouslast) { yors = true }
+
+            function looksLikeMail(str) {
+                var lastAtPos = str.lastIndexOf('@@');
+                var lastDotPos = str.lastIndexOf('.');
+                return (lastAtPos < lastDotPos && lastAtPos > 0 && str.indexOf('@@@@') == -1 && lastDotPos > 2 && (str.length - lastDotPos) > 2);
+            }
+
+            function CheckPassword(inputtxt){ 
+                var passw=/^[A-Za-z]\w{7,}$/;
+                if(inputtxt.match(passw)) { 
+                return true;
+                } else { 
+                return false;
+                }
+             };
+
+              
+        });
+
+        function notif(mess, color = 'danger') {
+             $.notify({
+                // options
+                message: mess,
+             }, {
+                // settings
+                type: color,
+                animate: {
+                 enter: 'animated fadeInDown',
+                 exit: 'animated fadeOutUp'
+                }
+             });
+        }
+            function contains(str, text) {
+                return (str.indexOf(text) >= 0);
+             }               
+
+
+        function Create(fname, mname, lname, sec, email, pass) {
+            upd += 1;
+            firebase.auth().createUserWithEmailAndPassword(email, pass)
+                .then(function (user) { 
+                    var user = firebase.auth().currentUser;
+                    var file = storageRef.ref("/ProfilePicture/" + user.uid);
+                    var uploadTask = file.put(selectedfile);
+
+
+                                                   
+
+                    uploadTask.on("state_changed", function (snapshot) {
+                        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        file.getDownloadURL().then(function (url) {
+                            var students = {
+                                student_id: user.uid,
+                                student_fname: fname,
+                                student_mname: mname,
+                                student_lname: lname,
+                                student_email: email,
+                                student_password: pass,
+                                student_photo: url,
+                                student_section: sec
+                               
+                            };
+                            var student_sav = database.ref("students/" + user.uid);
+
+                            if (progress == 0) {
+                                
+                            } else if (progress == 100) {
+                               showPreloader();
+                                if (student_sav.set(students)) {
+                                    Swal.fire({
+                                    title: 'Save!',
+                                    text: "Your file has been Saved.",
+                                    icon: 'success',
+
+                                    showConfirmButton: false,
+                                    timer: 1000,
+                                    onClose: () => {
+                                        window.location.reload();
+                                    }
+                                    });
+                                }
+                            }
+                        }, function (error) {
+                            if (error.message.includes("Firebase Storage")) {
+                                    showPreloader();
+                                }
+                                notif(error.message, 'danger');
+                        });
+                    });                    
+                }).catch(function (error) {
+                    notif(error.message, 'danger');
+                });
+             
+
+        };
+
+        function Read() {
+            $("#sid").val(upd);
+            var sec = database.ref("sections/");
+            var grd = database.ref("grade_level/");
+            var tion = document.getElementById("section");
+
+            sec.on("child_added", function (snapChat) {
+                grd.child(snapChat.child("grade_id").val()).once("value", function (chater) {
+                    var subre = snapChat.val();
+                    var pubre = chater.val();
+                    tion.innerHTML += `
+                      <option value="${subre.section_id}"> ${pubre.grade_level} ${subre.section_name}</option>
+                    `;
+                      hidePreloader();
+
+                });
+            });
+        };
+
+    </script>
+}

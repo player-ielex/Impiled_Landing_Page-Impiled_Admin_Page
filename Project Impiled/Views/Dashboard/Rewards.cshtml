@@ -1,0 +1,244 @@
+﻿
+@{
+    ViewBag.Title = "AddRewards";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    if (Session["adminId"] == null)
+    {
+        Response.Redirect("~/Admin/Login");
+    }
+}
+
+<div class="header bg-default pb-6">
+    <div class="container-fluid">
+        <div class="header-body">
+            <div class="row align-items-center py-4">
+                <div class="col-lg-6 col-7">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container mt--5">
+    <div class="row">
+        <div class="col-lg-12 card-wrapper">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title text-center"><b>Add Rewards</b></h1>
+                    <p class="card-text text-center">Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa beatae tenetur velit repellat </p><br />
+
+                    <form>
+                        <div class="row">
+                            <div class="col-md">
+                                <div class="avatar-upload">
+                                    <div class="avatar-edit">
+                                            <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" required />
+                                            <label for="imageUpload"></label>
+                                    </div>
+                                    <div class="avatar-preview">
+                                        <div id="imagePreview" style="background-image: url(http://i.pravatar.cc/500?img=7);">
+                                           
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md">
+                                <div class="form-group">
+                                    <label for="subjectname">Rewards Name</label>
+                                    <input type="text" id="rname" class="form-control" placeholder="Please Enter Rewards Name" required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="subjectname">Rewards Description</label>
+                                    <textarea class="form-control" id="description" placeholder="Type Reward Description" rows="4" ></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="subjectname">Rewards Category</label>
+                                    <select id="recat" class=" form-control" required>
+                                        <option disabled selected>Please Select Rewards Category</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                   <label for="subjectname">Rewards Quantity</label>
+                                   <input type="number" id="rquality" class="form-control" placeholder="Please Enter Rewards Quantity" required />
+                                </div>
+                                <div class="form-group">
+                                   <label for="subjectname">Rewards Task</label>
+                                   <textarea class="form-control" id="task" placeholder="Type Rewards Task" rows="4"></textarea>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <center>
+                            <input type="submit" class="btn btn-success" id="add" value="Add" />
+                        </center>
+
+                          
+                           
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section tab {
+    <script>
+
+        var database = firebase.database();
+        var rewards = database.ref("reward/");
+        var recategory = database.ref("recategory/");
+        var storageRef = firebase.storage();
+
+        //Setting Default Image for rewards
+        var selectedfile;
+
+        var a = new Date();
+        var b = a.getTime();
+        var upd = b;
+
+        var rename = document.getElementById("rname");
+        var redescrip = document.getElementById("description");
+        var recat = document.getElementById("recat");
+        var requality = document.getElementById("rquality");
+        var retask = document.getElementById("task");
+
+        var add = document.getElementById("add");
+        
+        add.addEventListener("click", function (e) {
+            e.preventDefault()
+                if (rename.value == "") {
+                    notify("Name is Empty", "danger");
+                } else if (redescrip.value == "") {
+                    notify("Description is Empty", "danger");
+                } else if (recat.value == "Please Select Rewards Category") {
+                    notify("Category is Empty", "danger");
+                } else if (requality.value == "") {
+                    notify("Quantity is Empty", "danger");
+                } else if (retask.value == "") {
+                    notify("Task is Empty", "danger");
+                } else if (selectedfile == null) {
+                    notify("Picture is Empty", "danger");
+                } else {
+                    Create(rename.value, redescrip.value, recat.value, requality.value, retask.value);
+                }
+        });
+
+        function notify(mes, ty) {
+            $.notify({
+                        // options
+                        message: mes,
+                    }, {
+                       // settings
+                       type: ty,
+                       animate: {
+                          enter: 'animated fadeInDown',
+                          exit: 'animated fadeOutUp'
+                       }
+            });
+        }
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#imagePreview').css('background-image', 'url('+e.target.result +')');
+                    $('#imagePreview').hide();
+                    $('#imagePreview').fadeIn(650);
+                }
+                if (input.files[0].size > 1000000) {
+                    notify('The size of Image is Too Big','danger');
+                } else {
+                   reader.readAsDataURL(input.files[0]);
+
+                }
+            }
+        }
+        $("#imageUpload").change(function(event) {
+            readURL(this);
+            selectedfile = event.target.files[0];
+            console.log(selectedfile.name);
+        }); 
+
+
+
+         function Create(rename, rediscrip, recat, requality, retask) {
+            upd += 1;
+             var file = storageRef.ref("/RewardsPicture/" + upd);
+             var uploadTask = file.put(selectedfile);
+
+            uploadTask.on("state_changed", function (snapshot) {
+                var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log(progress);
+                if (progress == 0) {
+                    $.notify({
+                    // options
+                    message: "Uploading is Starting",
+                    }, {
+                        // settings
+                        type: 'success',
+                        animate: {
+                            enter: 'animated fadeInDown',
+                            exit: 'animated fadeOutUp'
+                        }
+                    });
+                }
+                file.getDownloadURL().then(function (url) {
+                    var reward = {
+                        rewards_id: upd,
+                        rewards_name: rename,
+                        rewards_description: rediscrip,
+                        rewards_category: recat,
+                        rewards_quality: requality,
+                        rewards_task: retask,
+                        rewards_photo: url,
+                        rewards_timestamp: b,
+                        rewards_status: "Added"
+                    };
+
+                    var rewards_sav = database.ref("reward/" + upd);
+
+                    if (progress == 100) {
+                        if (rewards_sav.set(reward)) {
+                            Swal.fire({
+                                title: 'Save!',
+                                text: "Your file has been Saved.",
+                                icon: 'success',
+
+                                showConfirmButton: false,
+                                timer: 1000,
+                                onClose: () => {
+                                    window.location.reload();
+                                }
+                            });
+                        }
+
+                    }
+                });
+            },function(error) {
+                  console.log(error);
+            });
+
+        };
+
+        function Read() {
+            recategory.on("child_added", function (snapChat) {
+                var subre = snapChat.val();
+                recat.innerHTML += `
+                  <option value="${subre.recategory_id}">${subre.recategory_name}</option>
+                `;
+                 hidePreloader();
+
+            });
+        }
+ 
+
+    </script>
+} 

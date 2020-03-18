@@ -1,0 +1,67 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_NavBar.cshtml";
+    ViewBag.Title = "Rewards";
+}
+
+<div class="rewards">
+    <div class="text">
+        <h1>Rewards Offer</h1>
+        <p> These products are the ones you can potentially achieve and own after completing the tasks and missions assigned. </p>
+    </div>
+</div>
+
+<div class="swiper-container  swiper-container-initialized swiper-container-horizontal" ">
+    <div class="swiper-wrapper" id="here">
+    </div>
+</div>
+
+
+@section down {
+<script>
+    var database= firebase.database();
+    var rewards = database.ref("reward/");
+
+    function Read() {
+         
+     
+
+        rewards.on("child_added", function (snapChat) { 
+            var subdat = snapChat.val();  
+            Slider();
+            hel(subdat.rewards_photo, subdat.rewards_name);
+            hidePreloader();
+        }); 
+
+        function Slider() {
+            var swiper = new Swiper('.swiper-container', {
+                slidesPerView: 5.2,
+                spaceBetween: 30,
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+            });
+        }
+
+    function hel(pic, hel){
+    $("#here").append(`
+      <div class="swiper-slide">
+        <div class="slider-box">
+                <p class="time"><i class="fa fa-gift fa-2x"></i></p>
+                <div class="img-box">
+                  <img src="${pic}" /> 
+                </div>
+                <p class="detail"> ${hel}</p>
+        </div>
+        </div>
+      `);
+    }
+
+
+    };
+
+    
+  
+</script>
+}

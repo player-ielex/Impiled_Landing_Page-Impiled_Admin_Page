@@ -1,0 +1,162 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_NavBar.cshtml";
+    ViewBag.Title = "Students";
+}
+<style>    
+    .double-bounce1, .double-bounce2 {
+        background-color: #F54880!important;
+    }
+
+    .srow img {
+        margin-top: 0px !important;
+    }
+</style>
+
+<div class="flex">
+    <div class="text">
+        <h1>THE BEST APP FOR <br> STUDENTS</h1>
+        <p>Motivational Application for Students! Learn, Explore, and Improve! Help each other and be the best version of yourself. </p>
+        <a href="#about"><button>Learn More</button></a>
+    </div>
+    <div class="text2">
+        <img src="~/Content/Img/splash.png" />
+    </div>
+</div>
+<br>
+
+<div class="about-app" id="about">
+    <h6>Lets Talk</h6>
+    <h1>About This App</h1>
+
+    <div class="grid">
+        <div class="first">
+            <div class="g-text">
+                <img src="~/Content/Img/Group 4.png" width="50" />
+                <h2>What is this</h2>
+                <p>
+                   It is a Task and Reward System that can help students improve in school. 
+                </p>
+            </div>
+        </div>
+
+        <div class="second">
+            <div class="g-text">
+
+                <img src="~/Content/Img/2106612.png" width="50" />
+                <h2>Reason We Develop</h2>
+                <p>
+                   We want to help the student body improve in Academics. Because we are also students and we want also to help our fellow students to graduate and have a better future.
+                </p>
+            </div>
+        </div>
+
+        <div class="third">
+            <div class="g-text">
+                <img src="~/Content/Img/objective.png" width="50" />
+                <h2>Our Objectives</h2>
+                <p>
+                   To create an application where it can benefit students. Motivate them into helping each other improve in their studies using the Task and Reward System. 
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+
+
+
+
+    <div class="ser-app">
+        <h6>Apps</h6>
+        <h1>Services Offer</h1>
+
+        <div class="ser-grid">
+            <div class="frow">
+                <div class="frow-a">
+                    <br>
+                    <h2>Bulletin</h2>
+                    <p> Shows the current trend, news, announcements and current happenings inside the school.</p>
+                </div>
+                <br>
+                <br>
+                <br>
+                <div class="frow-b">
+                    <h2>Rewards</h2>
+                    <p> Much more like treasure hunting, students can complete tasks and missions in order to achieve rewards.</p>
+                </div>
+            </div>
+
+            <div class="srow">
+
+
+            </div>
+
+            <div class="trow">
+                <br>
+                <div class="trow-a">
+                    <h2>Works</h2>
+                    <p> It features written works such as Short Stories, Poems, and Jokes. Where users can share, read and enjoy each other's expressions through text.</p>
+                </div>
+                <br>
+                <br>
+                <br>
+                <div class="trow-b">
+                    <h2>Profile</h2>
+                    <p> Shows detailed information of the users/students. Full Name, Grade Level, Section and Email Address are some details that are shown.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="footer">
+        <h1>Get This App Now</h1>
+        <br>
+        <p>Contact your School Admin To Set Up your Account</p>
+    </div>
+
+</div>
+
+
+@section down {
+
+    <script>
+        function Read() {
+            $(function () {
+                $('.srow').crossSlide({
+                    sleep: 2,
+                    fade: 1
+                }, [
+                    { src: "../../Content/Img/profile.png" },
+                    { src: "../../Content/Img/works.png" },
+                    { src: "../../Content/Img/storycat.png" },
+                    { src: "../../Content/Img/singlework.png" },
+                    { src: "../../Content/Img/singlere.png" },
+                    { src: "../../Content/Img/singlegoal.png" },
+                    { src: "../../Content/Img/singlbul.png" },
+                    { src: "../../Content/Img/rewards.png" },
+                    { src: "../../Content/Img/recat.png" },
+                    { src: "../../Content/Img/profile.png" },
+                    { src: "../../Content/Img/bulliten.png" },
+                ])
+            });
+            hidePreloader();
+        }
+        
+
+        
+    </script>
+
+}
+
+

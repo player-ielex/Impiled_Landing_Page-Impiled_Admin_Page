@@ -1,0 +1,315 @@
+﻿@{
+    ViewBag.Title = "AllStudents";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    if (Session["adminId"] == null)
+    {
+        Response.Redirect("~/Admin/Login");
+    }
+}
+
+<div class="container-fluid mt-5">
+    <div class="row ">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title text-center"><b>All Students</b></h1>
+                    <p class="card-text text-center">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat repudiandae cum veritatis unde modi, itaque voluptatem id quae e</p>
+
+                    <div class="table-responsive py-4 text-center">
+                        <table class="table table-flush" id="students-basic" style="width: 100%">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Profile Picture</th>
+                                    <th>First Name</th>
+                                    <th>Middle Name</th>
+                                    <th>Last Name</th>
+                                    <th>Email</th>
+                                    <th>Password</th>
+                                    <th>Section</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <h1 class='col-12 modal-title text-center' style="font-size: 35px">
+                    Update Students
+                </h1>
+            </div>
+            <div class="modal-body col-12 text-center">
+                <form>
+
+                    <div class="avatar-upload">
+                        <div class="avatar-edit">
+                            <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" required />
+                            <label for="imageUpload"></label>
+                        </div>
+                        <div class="avatar-preview">
+                            <div id="imagePreview">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Please Enter First Name" id="fname" required />
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Please Enter Middle Name" id="mname" required />
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Please Enter Last Name" id="lname" required />
+                    </div>
+
+                    <div class="form-group">
+                        <select id="section" class=" form-control" required>
+                            <option disabled selected>Please Select Section</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Please Enter Email Name" id="email" required />
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Please Enter Password Name" id="pass" required />
+                    </div>
+
+                </form>
+                <button type="button" id="update" class="btn btn-warning text-center" tabindex="1" data-dismiss="modal">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section tab {
+    <script>
+
+        //Kulang nalng is eh update ang aton nga sections of students
+
+        var database = firebase.database();
+        var students = database.ref("students/");
+
+        var section = database.ref("sections/");
+        var grade = database.ref("grade_level/");
+
+        var storage = firebase.storage();
+        var storageRef = firebase.storage().ref();
+        var selectedfile;
+        var firesup = false;
+
+        var a = new Date();
+        var b = a.getTime();
+        var upd = b;
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#imagePreview').css('background-image', 'url('+e.target.result +')');
+                    $('#imagePreview').hide();
+                    $('#imagePreview').fadeIn(650);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        $("#imageUpload").change(function (event) {
+            firesup = true;
+            readURL(this);
+            selectedfile = event.target.files[0];
+            console.log(selectedfile.name);
+        });
+
+
+
+        function Read() {
+            var table = $('#students-basic').DataTable();
+
+            section.on("child_added", sec => {
+                grade.child(sec.child("grade_id").val()).once("value", grd => {
+
+                    var sect = sec.val();
+                    var gra = grd.val();
+
+                    document.getElementById("section").innerHTML +=
+                        `
+                          <option value="${sect.section_id}"> ${gra.grade_level} ${sect.section_name}</option>
+                        `;
+                });
+            });
+
+
+            students.on("child_added", snap => {
+                section.child(snap.child("student_section").val()).once("value", sec => {
+                    grade.child(sec.child("grade_id").val()).once("value", gr => {
+                            var picture = '<img width="70px" class="text-align" src="' + snap.child("student_photo").val() + '">'
+                            var delandup = '<button data-toggle="modal" data-target="#exampleModal" onclick="Update(' + "'" + snap.child("student_id").val() + "'" + "," + "'" + snap.child("student_fname").val() + "'" + "," + "'" + snap.child("student_mname").val() + "'" + "," + "'" + snap.child("student_lname").val() + "'" + "," +  sec.child("section_id").val() + "," +"'" + snap.child("student_email").val() + "'" + "," + "'" + snap.child("student_password").val() + "'" + "," + "'" + snap.child("student_photo").val() + "'" + ')" class="btn btn-warning btn-sm"> Update </button> <button onclick="Delete(' + "'" + snap.child("student_id").val() + "'" + "," + "'" + snap.child("student_email").val() + "'" + "," + "'" + snap.child("student_password").val() + "'" + ')" class="btn btn-danger btn-sm">Delete</button>';
+                            var dataSet = [picture, snap.child("student_fname").val(), snap.child("student_mname").val(), snap.child("student_lname").val(), snap.child("student_email").val(), snap.child("student_password").val(), gr.child("grade_level").val() + " " + sec.child("section_name").val(), delandup];
+                            table.rows.add([dataSet]).draw();
+                            hidePreloader();
+                    });
+                });
+            });
+        }
+
+        function Update(id,fname, mname, lname, secti, email, password, photo) {
+             $("#fname").val(fname);
+             $("#mname").val(mname);
+             $("#lname").val(lname);
+             $("#email").val(email);
+             $("#pass").val(password);
+            $("#section").val(secti);
+            document.getElementById('imagePreview').style.backgroundImage = `url(${photo})`;
+   
+            $("#update").on("click", e => {
+                 showPreloader()
+                var first = document.getElementById("fname");
+                var middle = document.getElementById("mname");
+                var last = document.getElementById("lname");
+                var em = document.getElementById("email");
+                var pas = document.getElementById("pass");
+                var ces = document.getElementById("section");
+                var photo = document.getElementById("imageUpload");
+
+                var student_upd = database.ref("students/" + id);
+
+
+                 firebase.auth().signInWithEmailAndPassword(email, password)
+                     .then(function (user) {
+                         var pic = storageRef.child(`ProfilePicture/${id}`);
+                         var file = storage.ref("/ProfilePicture/" + user.uid);
+
+                         if (firesup == true) {     
+                                 var uploadTask = file.put(selectedfile);
+                                 uploadTask.on("state_changed", function (snapshot) {
+                                     var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                     var downloadURL = uploadTask.snapshot.downloadURL;
+
+                                     if (progress == 0) {
+                                         $.notify({
+                                             // options
+                                             message: "Upload Picture Starting",
+                                         }, {
+                                             // settings
+                                             type: 'success',
+                                             animate: {
+                                                 enter: 'animated fadeInDown',
+                                                 exit: 'animated fadeOutUp'
+                                             }
+                                         });
+                                     } else if (progress == 100) {
+                                         file.getDownloadURL().then(function (url) {
+                                             var update = { 'student_id': id, 'student_fname': first.value, 'student_mname': middle.value, 'student_lname': last.value, 'student_section': ces.value, 'student_email': em.value, 'student_password': pas.value, 'student_photo': url };
+
+                                             if (student_upd.update(update)) {
+                                                 if (user.user.updateEmail(em.value) && user.user.updatePassword(pas.value)) {
+                                                     Swal.fire({
+                                                         title: 'Updated!',
+                                                         text: "Your file has been Updated.",
+                                                         icon: 'success',
+                                                         showConfirmButton: false,
+                                                         timer: 1000,
+                                                         onClose: () => {
+                                                             window.location.reload();
+                                                         },
+                                                     });
+                                                 }
+                                             }
+                                         });
+                                     }
+                                 });
+                         } else {
+                    
+                                 var update = { 'student_id': id, 'student_fname': first.value, 'student_mname': middle.value, 'student_lname': last.value, 'student_section': ces.value, 'student_email': em.value, 'student_password': pas.value};
+                                     if (student_upd.update(update)) {
+                                         if (user.user.updateEmail(em.value)) {
+                                                  if(user.user.updatePassword(pas.value)) {
+                                             Swal.fire({
+                                                title: 'Updated!',
+                                                text: "Your file has been Updated.",
+                                                icon: 'success',
+                                                showConfirmButton: false,
+                                                timer: 1000,
+                                                onClose: () => {
+                                                  window.location.reload();
+                                                },
+                                           });
+                                         }
+                                         }
+                                
+                                     }
+                         }
+
+                  });
+               
+            });
+        };
+
+        function Delete(id, email, pass) {
+            var pic = storageRef.child(`ProfilePicture/${id}`);
+
+            var index, table = document.getElementById('students-basic');
+            for (var i = 1; i < table.rows.length; i++) {
+                table.rows[i].cells[7].onclick = function () {
+                    index = this.parentElement.rowIndex;
+                    table.deleteRow(index);
+                }
+            };
+
+            var del = firebase.database().ref("students/" + id);
+            firebase.auth().signInWithEmailAndPassword(email, pass)
+                .then((user) => {
+                    if (pic.delete()) {
+                        if (user.user.delete()) {
+                            if (del.remove()) {
+
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: "Your file has been Deleted.",
+                                    icon: 'success',
+
+                                    showConfirmButton: false,
+                                    timer: 1000,
+                                    onClose: () => {
+                                        window.location.reload();
+                                    }
+                                });
+                            }
+                        }
+                    } else {
+                        if (del.remove()) {
+                             Swal.fire({
+                                    title: 'Deleted!',
+                                    text: "Your file has been Deleted.",
+                                    icon: 'success',
+
+                                    showConfirmButton: false,
+                                    timer: 1000,
+                                    onClose: () => {
+                                        window.location.reload();
+                                    }
+                                });
+                        }
+                    }
+                });
+        };
+
+
+
+
+    </script>
+}

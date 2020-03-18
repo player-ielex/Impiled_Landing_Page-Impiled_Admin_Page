@@ -1,0 +1,46 @@
+﻿@model Project_Impiled.Models.adminLogin
+@{
+    ViewBag.Title = "Login Admin";
+    Layout = "~/Views/Shared/_Normal.cshtml";
+
+    if (Session["adminId"] != null)
+    {
+        Response.Redirect("~/Dashboard/Home");
+    }
+}
+
+<div class="text-center login">
+
+    <h2>Login Admin</h2>
+
+    @using (@Html.BeginForm("Authorize", "Admin", FormMethod.Post))
+    {
+        <center>
+            <table>
+                <tr>
+                </tr>
+                <tr>
+                    <br />
+                    <br />
+                    <th width="65%">@Html.EditorFor(model => model.admin_username, new { htmlAttributes = new { @class = "input100", @placeholder = "Username", @required = "required" } })</th>
+                </tr>
+                <tr>
+                    <td width="65%"><p class="error"></p></td>
+                </tr>
+                <tr>
+                    <th width="65%">@Html.EditorFor(model => model.admin_password, new { htmlAttributes = new { @class = "input100", @placeholder = "Password", @required = "required", @type = "password" } })</th>
+                </tr>
+                <tr>
+                    <td width="65%"><p class="error"> @Html.DisplayFor(model => model.ErrLog)</p></td>
+                </tr>
+                <tr>
+                    <th width="65%"><input type="submit" class="form-btn" name="name" value="Login" /></th>
+                </tr>
+            </table>
+        </center>
+    }
+</div>
+
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>

@@ -1,0 +1,164 @@
+﻿@{
+    ViewBag.Title = "ReCategory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    if (Session["adminId"] == null)
+    {
+        Response.Redirect("~/Admin/Login");
+    }
+}
+
+<div class="container-fluid mt-4">
+    <div class="row card-wrapper">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center">
+                        <b>Add new Rewards Category</b>
+                    </h2>
+
+                    <div class="form-group">
+                        <label for="subjectname">Rewards Category</label>
+                        <input type="text" class="form-control" id="recat_name" placeholder="Please Enter Rewards Category" required />
+                    </div>
+
+                    <input class="btn btn-success" value="Add" id="add" type="submit">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title text-center"><b>All Rewards Category</b></h1>
+                    <p class="card-text text-center">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat repudiandae cum veritatis</p>
+
+                    <div class="table-responsive py-4">
+                        <table class="table table-flush" id="recat-basic" style="width: 100%">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th class="text-center">Rewards Category</th>
+                                    <th width="250px"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="pl-9" id="tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section tab {
+    <script>
+        var database = firebase.database();
+        var recat = database.ref("recategory/");
+        var recat_field = document.getElementById("recat_name");
+        var add = document.getElementById("add");
+
+        var a = new Date();
+        var b = a.getTime();
+        var upd = b;
+
+        add.addEventListener("click", function (e) {
+            e.preventDefault();
+            if (recat_field.value != "") {
+                Create(recat_field.value);
+            }
+        });
+
+        function Create(name) {
+            upd += 1;
+            var recat = {
+                recategory_id: upd,
+                recategory_name: name
+            }
+            var recategory_sav = database.ref("recategory/" + upd);
+            if (recategory_sav.set(recat)) {
+                $.notify({
+                    // options
+                    message: "Added Successfully",
+                }, {
+                    // settings
+                    type: 'success',
+                    animate: {
+                        enter: 'animated fadeInDown',
+                        exit: 'animated fadeOutUp'
+                    }
+                });
+            }
+            recat_field.value = '';
+        };
+
+        function Read() {
+            var table = $('#recat-basic').DataTable();
+
+            recat.on("child_added", snap =>
+            {
+                var delandup = '<button onclick="Update(' + snap.child("recategory_id").val() + "," +"'"+snap.child('recategory_name').val()+"'" +')" class="btn btn-warning btn-sm"> Update </button> <button onclick="Delete('+ snap.child("recategory_id").val() +')" class="btn btn-danger btn-sm">Delete</button>';
+                var dataSet = [snap.child("recategory_name").val(), delandup];
+                table.rows.add([dataSet]).draw();
+                hidePreloader();
+            });
+        };
+
+        function Update(id, recat) {
+            var value = recat;
+            var recat_upd = database.ref("recategory/" + id);
+
+            Swal.fire({
+                title: '<strong>Update Category</strong>',
+                icon: 'warning',
+                input: 'text',
+                inputValue: value,
+            }).then((result) => {
+
+                if (result.value) {
+                     Swal.fire({
+                    title: 'Updated!' ,
+                    text: "Your file has been Updated.",
+                    icon: 'success',
+                
+                    showConfirmButton: false,
+                    timer: 1000,
+                    onClose: () => {
+                       window.location.reload();
+                    },
+                });
+                    
+                var new_subname = result.value;
+                var update = { 'recategory_id': id, 'recategory_name': new_subname };
+                recat_upd.update(update);
+                }
+            });
+        };
+
+        function Delete(id) {
+             var index, table = document.getElementById('recat-basic');
+            for(var i = 1; i < table.rows.length; i++)
+            {
+                table.rows[i].cells[1].onclick = function() 
+                {
+                    index = this.parentElement.rowIndex;
+                    table.deleteRow(index);
+                }
+            };
+            var del = firebase.database().ref("recategory/" + id);
+            if (del.remove()) {
+                $.notify({
+                    // options
+                    message: "Deleted Successfully",
+                }, {
+                    // settings
+                    type: 'success',
+                    animate: {
+                        enter: 'animated fadeInDown',
+                        exit: 'animated fadeOutUp'
+                    }
+                });
+            }
+        };
+
+    </script>   
+}

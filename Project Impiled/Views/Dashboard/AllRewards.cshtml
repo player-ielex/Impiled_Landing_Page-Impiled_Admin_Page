@@ -1,0 +1,291 @@
+﻿@{
+    ViewBag.Title = "AllRewards";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    if (Session["adminId"] == null)
+    {
+        Response.Redirect("~/Admin/Login");
+    }
+}
+
+<style>
+</style>
+
+<div class="container-fluid mt-5">
+    <div class="row ">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title text-center"><b>All Rewards</b></h1>
+                    <p class="card-text text-center">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat repudiandae cum veritatis unde modi, itaque voluptatem id quae e</p>
+
+                    <div class="table-responsive py-4">
+                        <table class="table table-flush text-center" id="rewards-basic" style="width: 100%">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Picture</th>
+                                    <th>Name</th>
+                                    <th width="300px">Description</th>
+                                    <th>Category</th>
+                                    <th>Quantity</th>
+                                    <th width="300px">Task</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <h1 class='col-12 modal-title text-center' style="font-size: 35px">
+                    Update Students
+                </h1>
+            </div>
+            <div class="modal-body col-12">
+                <form>
+                    <div class="row">
+                        <div class="col-md">
+                            <div class="avatar-upload">
+                                <div class="avatar-edit">
+                                    <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" required />
+                                    <label for="imageUpload"></label>
+                                </div>
+                                <div class="avatar-preview">
+                                    <div id="imagePreview" style="background-image: url(http://i.pravatar.cc/500?img=7);">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md">
+                            <div class="form-group">
+                                <label for="subjectname">Rewards Name</label>
+                                <input type="text" id="rname" class="form-control" placeholder="Please Enter Rewards Name" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="subjectname">Rewards Description</label>
+                                <textarea class="form-control" id="description" placeholder="Type Reward Description" rows="4"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="subjectname">Rewards Category</label>
+                                <select id="recatsel" class=" form-control" required>
+                                    <option disabled selected>Please Select Rewards Category</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="subjectname">Rewards Quantity</label>
+                                <input type="number" id="rquality" class="form-control" placeholder="Please Enter Rewards Quantity" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="subjectname">Rewards Task</label>
+                                <textarea class="form-control" id="task" placeholder="Type Rewards Task" rows="4"></textarea>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <center>
+                        <input type="submit" class="btn btn-warning" id="update" value="Update" />
+                    </center>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section tab {
+    <script>
+        var database = firebase.database();
+        var reward = database.ref("reward/");
+        var recat = database.ref("recategory/");
+        var storage = firebase.storage();
+        var storageRef = firebase.storage().ref();
+        var selectedfile;
+        var firesup = false;
+
+        var recatsel = document.getElementById("recatsel");
+        var up = document.getElementById("update");
+
+
+        var a = new Date();
+        var b = a.getTime();
+        var upd = b;
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#imagePreview').css('background-image', 'url('+e.target.result +')');
+                    $('#imagePreview').hide();
+                    $('#imagePreview').fadeIn(650);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        $("#imageUpload").change(function (event) {
+            firesup = true;
+            readURL(this);
+            selectedfile = event.target.files[0];
+            console.log(selectedfile.name);
+        });
+       
+
+        function Read() {
+            var table = $('#rewards-basic').DataTable();
+
+            recat.on("child_added", function (snapChat) {
+                var subdat = snapChat.val();
+                recatsel.innerHTML += `
+                  <option value="${subdat.recategory_id}">${subdat.recategory_name}</option>
+                `;
+            });
+
+            reward.on("child_added", snap => {
+                recat.child(snap.child("rewards_category").val()).once('value', function (mediaSnap) {
+                    if (mediaSnap.exists()) {
+                        var picture = '<img width="70px" class="text-align" src="' + snap.child("rewards_photo").val() + '">'
+                        var delandup = '<button data-toggle="modal" data-target="#exampleModal" onclick="Update(' + snap.child("rewards_id").val() + "," + "'" + snap.child("rewards_name").val() + "'" + "," + "`" + snap.child("rewards_description").val() + "`" + "," + snap.child("rewards_category").val() + "," + snap.child("rewards_quality").val() + "," + "'" + snap.child("rewards_task").val() + "'" + "," + "'" + snap.child("rewards_photo").val() + "'" + ')" class="btn btn-warning btn-sm"> Update </button> <button onclick="Delete(' + snap.child("rewards_id").val() + ')" class="btn btn-danger btn-sm">Delete</button>';
+                        var dataSet = [picture, snap.child("rewards_name").val(), '<div style="width: 250px; height: 50px; overflow-x:scroll">' + snap.child("rewards_description").val() + '</div>', mediaSnap.val().recategory_name, snap.child("rewards_quality").val(), '<div style="width: 250px; height: 50px; overflow-x:scroll">' + snap.child("rewards_task").val() + '</div>', delandup];
+                        table.rows.add([dataSet]).draw();
+                        hidePreloader();
+
+                    } else {
+                        var picture = '<img width="70px" class="text-align" src="' + snap.child("rewards_photo").val() + '">'
+                        var delandup = '<button data-toggle="modal" data-target="#exampleModal" onclick="Update(' + snap.child("rewards_id").val() + "," + "'" + snap.child("rewards_name").val() + "'" + "," + "`" + snap.child("rewards_description").val() + "`" + "," + snap.child("rewards_category").val() + "," + snap.child("rewards_quality").val() + "," + "'" + snap.child("rewards_task").val() + "'" + "," + "'" + snap.child("rewards_photo").val() + "'" + ')" class="btn btn-warning btn-sm"> Update </button> <button onclick="Delete(' + snap.child("rewards_id").val() + ')" class="btn btn-danger btn-sm">Delete</button>';
+                        var dataSet = [picture, snap.child("rewards_name").val(), '<div style="width: 250px; height: 50px; overflow-x:scroll">' + snap.child("rewards_description").val() + '</div>', "null", snap.child("rewards_quality").val(), '<div style="width: 250px; height: 50px; overflow-x:scroll">' + snap.child("rewards_task").val() + '</div>', delandup];
+                        table.rows.add([dataSet]).draw();
+                        hidePreloader();
+
+                    }
+                   
+                });
+            });
+        }
+
+        function Update(id, name, descrip, cat, qual, tas, photo) {
+             $("#rname").val(name);
+             $("#description").val(descrip);
+             $("#recatsel").val(cat);
+             $("#rquality").val(qual);
+             $("#task").val(tas);
+            document.getElementById('imagePreview').style.backgroundImage = `url(${photo})`;
+
+
+            up.addEventListener("click", function (e) {
+                e.preventDefault();
+                var rename = document.getElementById("rname");
+                var redes = document.getElementById("description");
+                var recateg = document.getElementById("recatsel");
+                var requalty = document.getElementById("rquality");
+                var retask = document.getElementById("task");
+
+                var rewards_upd = database.ref("reward/" + id);
+
+                 var pic = storageRef.child("RewardsPicture/" + id);
+                 var file = storage.ref("/RewardsPicture/" + id);
+                console.log(firesup);
+                if (firesup == true) {
+                   // if (pic.delete()) {
+                        var uploadTask = file.put(selectedfile);
+                        uploadTask.on("state_changed", function (snapshot) {
+                            var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+
+                            if (progress == 0) {
+                                $.notify({
+                                    // options
+                                    message: "Uploading is Starting",
+                                }, {
+                                    // settings
+                                    type: 'success',
+                                    animate: {
+                                        enter: 'animated fadeInDown',
+                                        exit: 'animated fadeOutUp'
+                                    }
+                                });
+                            } else if (progress == 100) {
+                                file.getDownloadURL().then(function (url) {
+                                    var update = { 'rewards_id': id, 'rewards_name': rename.value, 'rewards_photo': url, 'rewards_description': redes.value, 'rewards_category': recateg.value, 'rewards_quality': requalty.value, 'rewards_task': retask.value, 'rewards_status': 'updated', 'rewards_timestamp': b };
+                                    if (rewards_upd.update(update)) {
+                                        Swal.fire({
+                                            title: 'Updated!',
+                                            text: "Your file has been Updated.",
+                                            icon: 'success',
+                                            showConfirmButton: false,
+                                            timer: 1000,
+                                            onClose: () => {
+                                                window.location.reload();
+                                            },
+                                         
+                                        });
+                                        console.log(url);
+                                    
+                                   }
+                                });
+                                
+                            }
+                        });
+                    //}
+                } else {
+                    var update = { 'rewards_id': id, 'rewards_name': rename.value, 'rewards_description': redes.value, 'rewards_category': recateg.value, 'rewards_quality': requalty.value, 'rewards_task': retask.value, 'rewards_status': 'updated', 'rewards_timestamp': b };
+
+                    if (rewards_upd.update(update)) {
+                               Swal.fire({
+                                  title: 'Updated!',
+                                  text: "Your file has been Updated.",
+                                  icon: 'success',
+                                  showConfirmButton: false,
+                                  timer: 1000,
+                                  onClose: () => {
+                                      window.location.reload();
+                               },
+                           });
+
+                        };
+                }
+
+                    
+            });
+      
+    }
+
+
+        function Delete(id) {
+            var pic = storageRef.child(`RewardsPicture/${id}`);
+
+            var index, table = document.getElementById('rewards-basic');
+            for (var i = 1; i < table.rows.length; i++) {
+                table.rows[i].cells[6].onclick = function () {
+                    index = this.parentElement.rowIndex;
+                    table.deleteRow(index);
+                }
+            };
+
+            var del = firebase.database().ref("reward/" + id);
+            if (pic.delete()) {
+                if (del.remove()) {
+                    Swal.fire({
+                        title: 'Deleted!',
+                        text: "Your file has been Deleted.",
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1000,
+                        onClose: () => {
+                            window.location.reload();
+                        }
+                    });
+                }
+            }
+        };
+
+    </script>
+}

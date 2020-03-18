@@ -1,0 +1,56 @@
+body {
+    background-color: rgb(161, 5, 192);
+}
+
+.sup {
+    margin-top: 50px;
+    margin-left: 80px;
+}
+
+.sup-text h1 {
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-size: 100px;
+    color: white;
+}
+
+.sup-text p {
+    color: white;
+    font-family: Roboto light;
+    width: 750px;
+}
+
+
+form {
+    width: 790px;
+    margin-top: 20px;
+}
+
+input[type=text]{
+    height: 50px;
+    width: 790px;
+
+}
+
+input[type=number]{
+    height: 50px;
+    width: 600px;
+
+}
+
+.btn-white {
+    border: 2px solid white;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    color: white;
+    font-size: 20px;
+}
+
+.btn-white:hover {
+    background-color: white;
+    color:#A105C0;
+}
+
+.fa-gift {
+    padding: 0 10px 0 0;
+}
+
+

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="ImpiledModelStoreContainer" CdmEntityContainer="ImpiledEntities1">
+    <EntitySetMapping Name="adminLogins">
+      <EntityTypeMapping TypeName="ImpiledModel.adminLogin">
+        <MappingFragment StoreEntitySet="adminLogin">
+          <ScalarProperty Name="admin_id" ColumnName="admin_id" />
+          <ScalarProperty Name="admin_username" ColumnName="admin_username" />
+          <ScalarProperty Name="admin_password" ColumnName="admin_password" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>
